@@ -7,9 +7,15 @@
 
 import SwiftUI
 
-struct Graph: View {
+struct GraphView: View {
     
+    @Environment(\.colorScheme) var colorScheme
     @Environment(\.verticalSizeClass) var verticalSizeClass
+    
+    @State var showList = false
+    @State var wList = 0.0
+    @State var textList = ""
+    
     
     var VM = GraphViewModel()
     @Binding var city1:String
@@ -27,27 +33,35 @@ struct Graph: View {
     
     var body: some View {
         VStack {
-            
-            
-            
+            //Якщо вертикально
+            if verticalSizeClass == .regular{
+                
                 Image("1")
                     .resizable()
-                    .aspectRatio(contentMode: verticalSizeClass == .compact ? .fill: .fit)
+                    .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity,  maxHeight:  verticalSizeClass == .compact ? .infinity: 180)
                     .cornerRadius(12)
                     .shadow(radius: 12, y: 20)
-                .edgesIgnoringSafeArea(.all)
+                    .edgesIgnoringSafeArea(.all)
                 
-
-            if verticalSizeClass == .regular{
                 ScrollView{
                     VStack{
-                        Text("Шлях з місця \"\(city1)\" до місця \"\(city2)\"").padding()
+                        VStack{
+                            Text("Шлях з місця ")
+                            +
+                            Text("\"\(city1)\"").foregroundColor(colorScheme == .dark ? .green : .indigo)
+                                .fontWeight(.bold)
+                            +
+                            Text(" до місця ")
+                            +
+                            Text("\"\(city2)\"").foregroundColor(colorScheme == .dark ? .green : .indigo)
+                                .fontWeight(.bold)
+                        }.padding()
                             .foregroundColor(Color(.label))
                             .frame(maxWidth: .infinity)
                             .background(Color(.systemGray5))
                             .clipShape(Capsule())
-                        
+                       
                             .shadow(radius: 5)
                             .padding()
                         
@@ -99,6 +113,58 @@ struct Graph: View {
                         Spacer()
                     }
                 }
+            }else{
+                //якщо горизонтально
+                ZStack {
+                    Image("1")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth: .infinity,  maxHeight:  verticalSizeClass == .compact ? .infinity: 180)
+                        .cornerRadius(12)
+                        .shadow(radius: 12, y: 20)
+                        .edgesIgnoringSafeArea(.all)
+                    
+                    
+                    HStack(spacing:0){
+                        Spacer().frame(width: showList ? 20: 0)
+                            VStack{
+                                Spacer().frame(height: 30)
+                                Text(textList)
+                                    .foregroundColor(Color(.label).opacity(0.6))
+                                    .animation(.easeInOut(duration: 0.5), value: showList)
+                                
+                            }.frame(maxWidth: wList, maxHeight: .infinity)
+                            .background(Color(.systemGray5).opacity(showList ? 1 : 0))
+                        
+                        
+                        VStack{
+                            Spacer().frame(height: 40)
+                            HStack{
+                                Button {
+                                    withAnimation {
+                                        
+                                        wList = wList == 0.0 ? 300.0: 0.0
+                                        textList = textList == "" ? (bellmanF.0+"\n\n\nДовжина маршруту: "+bellmanF.1)+"m" : ""
+                                        showList.toggle()
+                                    }
+                                    
+                                } label: {
+                                    Image(systemName: "chevron.right")
+                                        .font(.title2)
+                                        .rotationEffect(.degrees(showList ? 180 : 0))
+                                        .animation(.easeInOut(duration: 0.3), value: showList)
+                                        .padding()
+                                }.foregroundColor(Color(.label).opacity(0.5))
+                                    .fontWeight(.bold)
+                                    .background(Color(.systemGray5))
+                                
+                                Spacer()
+                            }
+                            
+                            Spacer()
+                        }
+                    }
+                }
             }
         }
     }
@@ -108,6 +174,6 @@ struct Graph_Previews: PreviewProvider {
     @State static var a = "4"
     @State static var b = "11"
     static var previews: some View {
-        Graph(city1: $a, city2: $b)
+        GraphView(city1: $a, city2: $b)
     }
 }
