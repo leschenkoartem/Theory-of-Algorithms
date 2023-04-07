@@ -57,7 +57,7 @@ struct ContentView: View {
                     .padding()
                 
                 NavigationLink {
-                    MainView3()
+                    Laba3View()
                         .navigationBarBackButtonHidden(true)
                                         } label: {
                     Text("Список Школоти")
